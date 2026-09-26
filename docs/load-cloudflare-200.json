@@ -1,0 +1,14 @@
+{
+  "environment": "deployed Cloudflare staging",
+  "targetRounds": 200,
+  "concurrency": 200,
+  "completed": 200,
+  "failures": 0,
+  "requests": 1000,
+  "elapsedSeconds": 12.3548793,
+  "p50ms": 1980.2210999999998,
+  "p95ms": 2641.0543999999995,
+  "p99ms": 3023.9540000000006,
+  "errors": [],
+  "limitation": "A bounded test from one client; does not guarantee sustained production capacity or quota sufficiency."
+}
