@@ -1,0 +1,14 @@
+{
+  "environment": "local Cloudflare emulation / staging database",
+  "targetRounds": 200,
+  "concurrency": 200,
+  "completed": 200,
+  "failures": 0,
+  "requests": 1000,
+  "elapsedSeconds": 14.077979299999999,
+  "p50ms": 3057.6558999999997,
+  "p95ms": 3341.321099999999,
+  "p99ms": 3350.5766999999996,
+  "errors": [],
+  "limitation": "Measures this development machine; does not establish production capacity or Cloudflare quotas."
+}
