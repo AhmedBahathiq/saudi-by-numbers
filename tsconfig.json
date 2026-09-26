@@ -6,5 +6,5 @@
     "resolveJsonModule": true, "noEmit": true,
     "types": ["node"]
   },
-  "include": ["src", "worker", "shared", "tests", "worker-configuration.d.ts"]
+  "include": ["src", "worker", "domain", "shared", "tests", "worker-configuration.d.ts"]
 }

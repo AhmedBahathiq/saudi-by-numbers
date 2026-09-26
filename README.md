@@ -7,8 +7,8 @@
 روابط النسخة المنشورة:
 
 - [التجربة — بيانات منفصلة](https://saudi-by-numbers-staging.saudi-by-numbers.workers.dev)
-- [الموقع الأساسي](https://saudi-by-numbers.saudi-by-numbers.workers.dev)
-- [شاشة البوث](https://saudi-by-numbers.saudi-by-numbers.workers.dev/results?display=1)
+- [الموقع الأساسي — JDSC](https://jdsc.ahmedbahathiq.com)
+- [شاشة البوث](https://jdsc.ahmedbahathiq.com/results?display=1)
 - [المصدر على GitHub](https://github.com/AhmedBahathiq/saudi-by-numbers)
 
 يلزم Node.js 24 أو أحدث وnpm. نفّذ داخل مجلد المشروع:
@@ -67,6 +67,14 @@ npm run qr -- https://YOUR-VERIFIED-WORKER.workers.dev
 تم إعداد الأسرار ومتغير التفعيل في هذا المستودع. مفتاح النشر المخصص لحساب clubs ينتهي في ٢٥ ديسمبر ٢٠٢٦؛ يُستبدل في سر `CLOUDFLARE_API_TOKEN` قبل ذلك لاستمرار التحديثات. لا يؤدي انتهاء المفتاح إلى توقف الموقع المنشور. إذا نسخت المشروع إلى حساب آخر فأنشئ قواعدك ومعرّفاتك وأسرارك الخاصة.
 
 ## التشغيل يوم الفعالية
+
+### الدومين الفرعي
+
+الرابط المعتمد `https://jdsc.ahmedbahathiq.com`. الدومين في الحساب الشخصي، والموقع وقاعدة بياناته في حساب clubs. لذلك ينشر `domain/wrangler.jsonc` عاملًا صغيرًا باسم `jdsc-saudi-by-numbers-domain` في حساب الدومين، يمرّر الطلبات إلى موقع الإنتاج الثابت. يتحقق من Origin قبل تمرير الكتابة ولا يرسل كوكيز الدومين الشخصي إلى التطبيق. لا تُنسخ المشاركات إلى قاعدة ثانية.
+
+تحديثات الموقع من `main` تظهر على الدومين تلقائيًا. تعديل عامل الربط نفسه يُنشر بواسطة حساب مصرح له باستخدام `npx wrangler deploy --config domain/wrangler.jsonc`؛ مفتاح GitHub الحالي مخصص لحساب clubs. الاستضافة الأصلية تبقى متاحة على `https://saudi-by-numbers.saudi-by-numbers.workers.dev`. تمرير الطلبات يحتسب ضمن حدود Workers في الحساب الشخصي أيضًا. لم تُفعّل خطة مدفوعة لإضافة الفرع.
+
+بطاقة PDF تستخدم رابط الصفحة المفتوحة في QR، لذا البطاقات المحمّلة من الرابط الجديد تشير إليه. لإنشاء QR البوث: `npm run qr -- https://jdsc.ahmedbahathiq.com`.
 
 1. تأكد من مراجعة [بنك الأسئلة](docs/QUESTION_BANK.md) وعمل مصادره.
 2. افتح رابط الإنتاج على جوال خارج حساب المشغّل، وأكمل جولة وتحقق من PDF.
