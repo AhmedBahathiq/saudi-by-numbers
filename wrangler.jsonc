@@ -1,18 +1,20 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "saudi-by-numbers",
+  "account_id": "807fc88624fbf874abfd3e8977488506",
   "main": "worker/index.ts",
   "compatibility_date": "2026-09-26",
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*"] },
   "vars": { "EVENT_ID": "national-day-2026", "ENVIRONMENT": "production", "ACCEPTING": "true" },
-  "d1_databases": [{ "binding": "DB", "database_name": "saudi-by-numbers-production", "migrations_dir": "migrations" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "saudi-by-numbers-production", "database_id": "9582c14b-2b19-4286-aa34-0cdb82aebf57", "migrations_dir": "migrations" }],
   "observability": { "enabled": true, "head_sampling_rate": 0.1 },
   "env": {
     "staging": {
       "name": "saudi-by-numbers-staging",
       "vars": { "EVENT_ID": "test-2026", "ENVIRONMENT": "staging", "ACCEPTING": "true" },
-      "d1_databases": [{ "binding": "DB", "database_name": "saudi-by-numbers-staging", "migrations_dir": "migrations" }]
+      "d1_databases": [{ "binding": "DB", "database_name": "saudi-by-numbers-staging", "database_id": "ab367b72-edf2-4251-bc69-0b3c929b9438", "migrations_dir": "migrations" }]
     }
   }
 }
+
