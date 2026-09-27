@@ -14,6 +14,6 @@ export interface Stats {
   questions: { id: string; topic: Topic; prompt: string; total: number; correct: number; choices: {label:string;count:number}[] }[];
   votes: { label: string; count: number }[]; updatedAt: string; environment: string;
 }
-export const titles = ['بداية الاستكشاف', 'مستكشف واعد', 'مستكشف البيانات', 'خبير الأرقام'];
+export const titles = ['بداية الاستكشاف', 'مستكشف واعد', 'مستكشف البيانات', 'خبير البيانات'];
 export const cities = ['جدة', 'الرياض', 'العلا', 'أبها', 'المدينة المنورة', 'الخبر'];
 export const levelNames: Record<Level, string> = { easy: 'اكتشف الرقم', medium: 'اختبر توقّعك', chart: 'اقرأ البيانات' };
