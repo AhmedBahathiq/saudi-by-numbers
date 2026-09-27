@@ -1,0 +1,2 @@
+# D1 remote SQL parsing is sensitive to CRLF inside trigger bodies.
+*.sql text eol=lf

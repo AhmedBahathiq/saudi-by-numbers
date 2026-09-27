@@ -44,17 +44,17 @@ CREATE TABLE map_poll_totals (event_id TEXT NOT NULL,city TEXT NOT NULL,count IN
 CREATE TRIGGER map_answer_guard BEFORE INSERT ON map_answers
 WHEN NOT EXISTS (SELECT 1 FROM map_answers WHERE round_id=NEW.round_id AND city_id=NEW.city_id)
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT RAISE(ABORT,'round_closed_or_city_not_active') WHERE NOT EXISTS (
     SELECT 1 FROM map_rounds WHERE id=NEW.round_id AND completed_at IS NULL
     AND active_city=NEW.city_id AND NEW.received_at>=started_at AND NEW.received_at<expires_at
-  ) THEN RAISE(ABORT,'round_closed_or_city_not_active') END;
+  );
 END;
 CREATE TRIGGER map_answer_saved AFTER INSERT ON map_answers
 BEGIN
   UPDATE map_rounds SET
     score=score+10*NEW.is_correct, answer_count=answer_count+1, active_city=NULL,
-    last_correct_at=CASE WHEN NEW.is_correct=1 THEN NEW.received_at ELSE last_correct_at END,
-    completed_at=CASE WHEN answer_count=9 THEN NEW.received_at ELSE completed_at END
+    last_correct_at=(CASE WHEN NEW.is_correct=1 THEN NEW.received_at ELSE last_correct_at END),
+    completed_at=(CASE WHEN answer_count=9 THEN NEW.received_at ELSE completed_at END)
   WHERE id=NEW.round_id;
   INSERT INTO map_city_totals(event_id,city_id,total,correct)
     SELECT event_id,NEW.city_id,1,NEW.is_correct FROM map_rounds WHERE id=NEW.round_id
