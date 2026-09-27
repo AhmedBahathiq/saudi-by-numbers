@@ -14,7 +14,12 @@
     "test:load": "node scripts/load.mjs",
     "deploy": "npm run build && wrangler deploy",
     "export": "node scripts/export.mjs",
-    "qr": "node scripts/qr.mjs"
+    "qr": "node scripts/qr.mjs",
+    "map:dev": "npm run build && wrangler dev --local --env staging --port 8790 --inspector-port 9231 --persist-to .wrangler/map-preview --ip 127.0.0.1",
+    "map:db": "wrangler d1 migrations apply DB --local --env staging --persist-to .wrangler/map-preview",
+    "export:map": "node scripts/export-map.mjs",
+    "test:map": "tsx scripts/map-integration.ts",
+    "map:bank": "tsx scripts/map-bank.ts"
   },
   "dependencies": {
     "react": "^19.0.0",

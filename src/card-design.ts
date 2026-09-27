@@ -1,8 +1,10 @@
 import { titles } from '../shared/types';
+import {mapTier} from '../shared/map-types';
 
 export const CARD_WIDTH = 105;
 export const CARD_HEIGHT = 148;
-export const NAME_LIMIT = 32;
+export const NAME_LIMIT = 48;
+export interface CardResult {completed:boolean;score:number;title:string;tier?:number;name?:string}
 export const cardThemes = [
   { name: 'البداية الخضراء', dark: '#245745', accent: '#c5e6a0', pale: '#f4f8f0', ink: '#245745', message: 'أول خطوة في حكاية كبيرة' },
   { name: 'بوصلة الاكتشاف', dark: '#105864', accent: '#98e0d7', pale: '#eff8f7', ink: '#105864', message: 'فضولك يقودك لاكتشافات أكثر' },
@@ -10,7 +12,7 @@ export const cardThemes = [
   { name: 'تميّز البيانات', dark: '#145e9b', accent: '#b9e8d0', pale: '#f2f8fc', ink: '#184e7d', message: 'كل الأرقام كانت في مكانها!' },
 ];
 
-// Names stay in component memory and never enter an API request.
+// The legacy card name is local; map-round names are saved and publicly ranked.
 export function normalizeCardName(value: string) {
   return Array.from(value.normalize('NFC').replace(/[^\p{L}\p{M}\p{N} .’'\-]/gu, '').replace(/\s+/g, ' ').trim()).slice(0, NAME_LIMIT).join('');
 }
@@ -22,8 +24,8 @@ export type CardShape =
   | { kind: 'text'; x: number; y: number; value: string; size: number; color: string; align?: 'start' | 'middle' | 'end'; latin?: boolean }
   | { kind: 'image'; x: number; y: number; w: number; h: number; source: 'logo' | 'qr' };
 
-export function cardScene(score: number, participantName = ''): CardShape[] {
-  const level = Math.max(0, Math.min(3, Math.trunc(score)));
+export function cardScene(score: number, participantName = '', maxScore=3): CardShape[] {
+  const level = maxScore===100?mapTier(score):Math.max(0, Math.min(3, Math.trunc(score)));
   const t = cardThemes[level];
   const name = normalizeCardName(participantName);
   const s: CardShape[] = [];
@@ -68,10 +70,16 @@ export function cardScene(score: number, participantName = ''): CardShape[] {
     line(52.5,49,52.5,53,t.dark,.85);line(48,54,57,54,t.dark,1);
   }
   text(name?'بكل فخر، هذه بطاقتك':'رحلة قصيرة، معرفة تبقى',52.5,72,3.3,'#68766d');
-  const nameSize = Math.min(7, 82 / Math.max(Array.from(name).length,1));
-  text(name||'مشاركتك تصنع الحكاية',52.5,83,name?nameSize:5,t.dark);
+  const chars=Array.from(name);let lines=[name];
+  if(chars.length>24){
+    const middle=Math.ceil(chars.length/2);const spaces=chars.map((c,i)=>c===' '?i:-1).filter(i=>i>5&&i<chars.length-5);
+    const split=spaces.sort((a,b)=>Math.abs(a-middle)-Math.abs(b-middle))[0]??middle;
+    lines=[chars.slice(0,split).join('').trim(),chars.slice(split).join('').trim()];
+  }
+  const nameSize=Math.min(7,110/Math.max(...lines.map(l=>Array.from(l).length),1));
+  lines.forEach((line,i)=>text(line||'مشاركتك تصنع الحكاية',52.5,lines.length>1?79+i*8:83,name?nameSize:5,t.dark));
   text(titles[level],52.5,96,7.5,t.ink);rect(34,101,37,12,t.dark,6);
-  text(`${level} / 3`,52.5,109.5,6.3,t.accent,'middle',true);text(t.message,52.5,120,3.6,t.dark);
+  text(`${maxScore===100?score:level} / ${maxScore}`,52.5,109.5,6.3,t.accent,'middle',true);text(maxScore===100&&level===3?'معرفة تقودك إلى التميّز':t.message,52.5,120,3.6,t.dark);
   line(12,125,93,125,t.dark,.15);
   s.push({kind:'image',x:80,y:129,w:14,h:14,source:'logo'});
   text('نادي علوم البيانات',76,134,4.2,'#173a59','end');text('جامعة جدة',76,140,3.3,'#68766d','end');

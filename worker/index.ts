@@ -1,28 +1,10 @@
+import { HttpError, json, body, roundId } from './http';
+import { handleMap } from './map-api';
 import { BANK_VERSION, questions, selectQuestions } from './questions';
 import { cities, titles, type Question, type RoundView } from '../shared/types';
 
 type Round = { id: string; event_id: string; bank_version: string; snapshot: string; completed_at: string | null; score: number };
 type SavedAnswer = { position: number; question_id: string; selected: number; is_correct: number };
-class HttpError extends Error { constructor(public status: number, message: string) { super(message); } }
-function json(data: unknown, status=200, headers: Record<string,string>={}) {
-  return Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
-}
-async function body(request: Request): Promise<Record<string,unknown>> {
-  if (!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError(415,'صيغة الطلب غير مدعومة.');
-  if (Number(request.headers.get('content-length') || 0)>4096) throw new HttpError(413,'الطلب أكبر من المسموح.');
-  const reader=request.body?.getReader(); if(!reader) throw new HttpError(400,'الطلب فارغ.');
-  let size=0; const chunks:Uint8Array[]=[];
-  while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>4096){await reader.cancel();throw new HttpError(413,'الطلب أكبر من المسموح.');}chunks.push(value);}
-  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
-  try { const value:unknown=JSON.parse(new TextDecoder().decode(bytes)); if(!value||Array.isArray(value)||typeof value!=='object')throw new Error();return value as Record<string,unknown>; }
-  catch {throw new HttpError(400,'تعذّرت قراءة الطلب.');}
-}
-async function roundId(request:Request) {
-  const key=request.headers.get('authorization')?.replace(/^Bearer /,'') || '';
-  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key))throw new HttpError(401,'ابدأ جولة جديدة للمتابعة.');
-  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key));
-  return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
-}
 async function getRound(env:Env,id:string) {
   const row=await env.DB.prepare('SELECT * FROM rounds WHERE id=? AND event_id=?').bind(id,env.EVENT_ID).first<Round>();
   if(!row)throw new HttpError(404,'لم نجد هذه الجولة. ابدأ جولة جديدة.'); return row;
@@ -64,6 +46,7 @@ export default {
       if(request.method==='GET'&&url.pathname==='/api/stats')return await stats(request,env,ctx);
       if(request.method==='GET'&&url.pathname==='/api/health')return json({ok:true,environment:env.ENVIRONMENT,accepting:env.ACCEPTING==='true'});
       if(request.method!=='GET'&&request.headers.get('origin')&&request.headers.get('origin')!==url.origin)throw new HttpError(403,'مصدر الطلب غير مسموح.');
+      if(url.pathname.startsWith('/api/map/'))return await handleMap(request,env,ctx);
       const id=await roundId(request);
       if(request.method==='POST'&&url.pathname==='/api/round') {
         if(env.ACCEPTING!=='true')throw new HttpError(503,'استقبال المشاركات متوقف مؤقتًا. تقدر تتصفح النتائج.');

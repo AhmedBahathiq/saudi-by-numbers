@@ -1,9 +1,9 @@
 import QRCode from 'qrcode';
-import type { RoundView } from '../shared/types';
+import type { CardResult } from './card-design';
 import { cardScene, CARD_WIDTH, CARD_HEIGHT } from './card-design';
 
 async function loadImage(url:string):Promise<HTMLImageElement>{const img=new Image();img.src=url;await img.decode();return img;}
-export async function createCardImage(round:RoundView,name:string,origin:string):Promise<Blob>{
+export async function createCardImage(round:CardResult,name:string,origin:string):Promise<Blob>{
   if(!round.completed)throw new Error('أكمل التحدي أولًا.');
   await document.fonts.load('24px Amiri');
   if(!document.fonts.check('24px Amiri'))throw new Error('تعذّر تحميل خط البطاقة.');
@@ -12,7 +12,7 @@ export async function createCardImage(round:RoundView,name:string,origin:string)
   const canvas=document.createElement('canvas');canvas.width=CARD_WIDTH*12;canvas.height=CARD_HEIGHT*12;
   const ctx=canvas.getContext('2d');if(!ctx)throw new Error('تعذّر تجهيز الصورة.');
   ctx.scale(12,12);ctx.lineJoin='round';ctx.lineCap='round';
-  for(const s of cardScene(round.score,name)){
+  for(const s of cardScene(round.score,name,round.tier!==undefined?100:3)){
     if(s.kind==='image'){ctx.drawImage(s.source==='logo'?logo:qr,s.x,s.y,s.w,s.h);continue;}
     if(s.kind==='text'){
       ctx.fillStyle=s.color;ctx.font=`${s.size}px ${s.latin?'Arial':'Amiri'}`;ctx.textBaseline='alphabetic';
@@ -29,7 +29,7 @@ export async function createCardImage(round:RoundView,name:string,origin:string)
   }
   return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('تعذّر حفظ الصورة.')),'image/png'));
 }
-export async function downloadCardImage(round:RoundView,name:string){
+export async function downloadCardImage(round:CardResult,name:string){
   const blob=await createCardImage(round,name,window.location.origin);
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='السعودية-بالأرقام.png';
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60_000);
